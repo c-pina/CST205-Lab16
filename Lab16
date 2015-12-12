@@ -1,0 +1,51 @@
+def getHeadlines():
+  htmlString = urllib.urlopen('http://www.cnn.com/').read()
+  
+  #Create headlines dictionary
+  headlines = []
+  
+  #Define search terms to find headline within a section of the web page 
+  sectionFind = 'Top%20stories'
+  primarySearch = '<span class="cd__headline-text">'
+  secondarySearch = '</span>'
+  
+  #Search will begin search after finding Top Stories section
+  initialIndex = htmlString.find(sectionFind, 0)
+  
+  while htmlString.find(sectionFind, initialIndex) != -1:
+    #Finds index of the next instance of primarySearch
+    index1 = htmlString.find(primarySearch, initialIndex)
+    #Finds index of the next instance of secondarySearch following primarySearch
+    index2 = htmlString.find(secondarySearch, index1)
+    #initialIndex needs to be updated to search for h3 after index2
+    initialIndex = index2
+    #Prints the string between index1 and index2
+    #but html code before and after the headline is removed
+    headline = htmlString[index1+len(primarySearch):index2]
+    headlines.append(headline)
+  return headlines
+  
+def createHeadlineWebpage(headlines):
+  file = open("/Users/cpina/Desktop/CNNHeadlines.html", "wt")
+  file.write("""<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01
+  Transition//EN" "http://www.w3.org/TR/html4/loose.dtd">
+  
+  <html>
+  <head>
+  <title>I made this page with Python!</title>
+  </head>
+  <body>
+  <h2>The top stories on CNN are:</h2>""")
+  
+  for headline in headlines:
+    file.write("""\n<h3>%s</h3>\n""" % headline)
+  
+  file.write("""
+  </body>
+  </html>""")
+  
+  file.close()
+
+def createCNNHeadlinePage():
+  headlines = getHeadlines()
+  createHeadlineWebpage(headlines)
